@@ -7,6 +7,8 @@ const Campground = require('./models/campground');
 mongoose.connect('mongodb://localhost/yelp-camp', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
 });
 
 const db = mongoose.connection;
@@ -17,8 +19,6 @@ db.once('open', function () {
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-mongoose.set('useFindAndModify', false);
-mongoose.set('useCreateIndex', true);
 
 app.get('/', async (req, res) => {
   const camp = new Campground({
