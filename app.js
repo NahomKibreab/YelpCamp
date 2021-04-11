@@ -28,13 +28,7 @@ app.use(express.urlencoded({ extended: true })); // for parsing application/x-ww
 app.use(methodOverride('_method'));
 
 app.get('/', async (req, res) => {
-  const camp = new Campground({
-    title: 'My Campground',
-    description: 'this is my first campground',
-  });
-  await camp.save();
-
-  res.send(camp);
+  res.send('HOME PAGE');
 });
 
 app.get('/campgrounds', async (req, res) => {
