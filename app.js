@@ -5,8 +5,8 @@ const mongoose = require('mongoose');
 const Campground = require('./models/campground');
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
-const AppError = require('./Utilities/AppError');
-const catchAsync = require('./Utilities/catchAsync');
+const AppError = require('./utils/AppError');
+const catchAsync = require('./utils/catchAsync');
 
 mongoose.connect('mongodb://localhost/yelp-camp', {
   useNewUrlParser: true,
@@ -98,8 +98,9 @@ app.all('*', (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  const { status = 500, message = 'Something went wrong!' } = err;
-  res.status(status).send(message);
+  const { status = 500 } = err;
+  if (!err.message) err.message = 'Oh sorry, something went wrong!';
+  res.status(status).render('Errors', { err });
 });
 
 app.listen(3000, () => {
