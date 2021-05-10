@@ -7,6 +7,7 @@ const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const AppError = require('./utils/AppError');
 const catchAsync = require('./utils/catchAsync');
+const { campgroundSchema } = require('./schemas');
 
 mongoose.connect('mongodb://localhost/yelp-camp', {
   useNewUrlParser: true,
@@ -29,6 +30,16 @@ app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(methodOverride('_method'));
 
+const validateCampground = (req, res, next) => {
+  const { error } = campgroundSchema.validate(req.body);
+  if (error) {
+    const msg = error.details.map((el) => el.message).join(',');
+    throw new AppError(400, msg);
+  } else {
+    next();
+  }
+};
+
 app.get('/', (req, res) => {
   res.send('HOME PAGE');
 });
@@ -47,8 +58,8 @@ app.get('/campgrounds/new', (req, res) => {
 
 app.post(
   '/campgrounds',
+  validateCampground,
   catchAsync(async (req, res) => {
-    if (!req.body.campground) throw new AppError(400, 'Invalid Campground');
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground.id}`);
@@ -75,6 +86,7 @@ app.get(
 
 app.put(
   '/campgrounds/:id',
+  validateCampground,
   catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, {
